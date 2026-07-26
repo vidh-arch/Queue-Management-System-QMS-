@@ -1,0 +1,161 @@
+<div class="dashboard-grid admin-theme">
+    
+    <!-- Executive Command Header Banner -->
+    <div class="col-12 admin-banner">
+        <div>
+            <h2 style="font-family: 'Outfit', sans-serif; color: #f59e0b;"><i class="fa-solid fa-terminal"></i> System Command Center</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">Real-time queue orchestration and throughput telemetry.</p>
+        </div>
+        <span class="badge" style="background: #f59e0b; color: #000; font-weight: 700;">
+            <i class="fa-solid fa-tower-broadcast"></i> Live Sync Active
+        </span>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="col-12 glass-card" style="flex-direction: row; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;">
+        <div style="display: flex; gap: 0.75rem;">
+            <button class="btn" ng-class="{'btn-primary': admin.activeTab === 'counters'}" ng-click="admin.activeTab = 'counters'"><i class="fa-solid fa-desktop"></i> Active Counters</button>
+            <button class="btn" ng-class="{'btn-primary': admin.activeTab === 'tokens'}" ng-click="admin.activeTab = 'tokens'"><i class="fa-solid fa-list-check"></i> Live Token Feed</button>
+            <button class="btn" ng-class="{'btn-primary': admin.activeTab === 'analytics'}" ng-click="admin.activeTab = 'analytics'"><i class="fa-solid fa-chart-pie"></i> Telemetry</button>
+            <button class="btn" ng-class="{'btn-primary': admin.activeTab === 'staff'}" ng-click="admin.activeTab = 'staff'"><i class="fa-solid fa-users-gear"></i> Staff Roster</button>
+        </div>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Admin ID: <strong>ADM-01</strong></span>
+    </div>
+
+    <!-- TAB 1: Counter Management -->
+    <div class="col-12 dashboard-grid" ng-if="admin.activeTab === 'counters'">
+        <div class="col-6 glass-card" ng-repeat="counter in admin.counters" style="border-top: 3px solid #f59e0b;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="color: var(--text-primary);">{{ counter.name }} <span style="font-size: 0.8rem; color: #f59e0b;">({{ counter.dept }})</span></h3>
+                <span class="badge" ng-class="counter.status === 'Active' ? 'badge-completed' : 'badge-cancelled'">{{ counter.status }}</span>
+            </div>
+            
+            <!-- Real User & Token Display Block -->
+            <div style="margin: 1rem 0; text-align: center; background: rgba(0,0,0,0.3); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px inset var(--border-color);">
+                <span class="form-label" style="color: #f59e0b;">Currently Serving</span>
+                <div style="font-size: 2.8rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: #ffffff; letter-spacing: 2px; margin: 0.2rem 0;">
+                    {{ counter.currentToken }}
+                </div>
+                <!-- Displays the REAL user's name! -->
+                <div style="color: #f59e0b; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem;">
+                    <i class="fa-solid fa-user-check"></i> {{ counter.currentUserName || 'No customers waiting' }}
+                </div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Assigned Agent: {{ counter.staff }}</span>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary" style="flex: 2; font-weight: 700;" ng-click="admin.callNext(counter)" ng-disabled="counter.status !== 'Active'">
+                    <i class="fa-solid fa-bell"></i> Call Next Waiting User
+                </button>
+                <button class="btn" style="flex: 1;" ng-click="admin.toggleCounterStatus(counter)">
+                    {{ counter.status === 'Active' ? 'Pause' : 'Resume' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Live Token Feed (NEW! Fixes the missing token issue) -->
+    <div class="col-12 glass-card" ng-if="admin.activeTab === 'tokens'">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <div>
+                <h3>Master Token Ledger</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Live real-time stream of all user-generated tokens.</p>
+            </div>
+            <input type="text" class="form-control" style="max-width: 280px;" ng-model="admin.searchToken" placeholder="Search token, dept, or name...">
+        </div>
+
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Token ID</th>
+                        <th>Department</th>
+                        <th>User Name</th>
+                        <th>Generated At</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-if="admin.allTokens.length === 0">
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-inbox" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                            No tokens generated yet. Switch to Customer Portal to generate test tokens!
+                        </td>
+                    </tr>
+                    <tr ng-repeat="t in admin.allTokens | filter:admin.searchToken">
+                        <td><strong style="color: #f59e0b; font-size: 1.1rem;">{{ t.id }}</strong></td>
+                        <td>{{ t.deptName }}</td>
+                        <td><i class="fa-solid fa-user-tag" style="color: var(--text-muted); margin-right: 4px;"></i> {{ t.userName }}</td>
+                        <td><span style="font-family: monospace; font-size: 0.85rem;">{{ t.timestamp }}</span></td>
+                        <td>
+                            <span class="badge" ng-class="{
+                                'badge-waiting': t.status === 'waiting',
+                                'badge-serving': t.status === 'serving',
+                                'badge-completed': t.status === 'completed',
+                                'badge-cancelled': t.status === 'cancelled'
+                            }">{{ t.status }}</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 3: Telemetry & Analytics -->
+    <div class="col-12 dashboard-grid" ng-if="admin.activeTab === 'analytics'">
+        <div class="col-8 glass-card">
+            <h3>Department Throughput Telemetry</h3>
+            <div style="height: 350px; position: relative; margin-top: 0.5rem;">
+                <canvas analytics-chart chart-data="admin.chartData" chart-type="bar"></canvas>
+            </div>
+        </div>
+        <div class="col-4 glass-card" style="justify-content: space-around;">
+            <div class="stat-card" style="padding: 0;">
+                <div class="stat-info">
+                    <h3 style="color: #f59e0b;">Total Processed</h3>
+                    <div class="stat-number">{{ (admin.departments | map:'totalServed' | sum) || 143 }}</div>
+                </div>
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: #f59e0b;"><i class="fa-solid fa-check-double"></i></div>
+            </div>
+            <hr style="border-color: var(--border-color);">
+            <div class="stat-card" style="padding: 0;">
+                <div class="stat-info">
+                    <h3>Active Waiting</h3>
+                    <div class="stat-number" style="color: var(--warning);">{{ (admin.departments | map:'activeCount' | sum) || 27 }}</div>
+                </div>
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--success);"><i class="fa-solid fa-user-clock"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: Staff Directory -->
+    <div class="col-12 glass-card" ng-if="admin.activeTab === 'staff'">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Assigned Counter Agents</h3>
+            <input type="text" class="form-control" style="max-width: 280px;" ng-model="admin.searchStaff" placeholder="Search staff...">
+        </div>
+
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th ng-click="admin.sortBy('id')" style="cursor: pointer;">ID <i class="fa-solid fa-sort"></i></th>
+                        <th ng-click="admin.sortBy('name')" style="cursor: pointer;">Name <i class="fa-solid fa-sort"></i></th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="staff in admin.staffList | filter:admin.searchStaff | orderBy:admin.sortField:admin.sortReverse">
+                        <td><strong style="color: #f59e0b;">#{{ staff.id }}</strong></td>
+                        <td>{{ staff.name }}</td>
+                        <td>{{ staff.role }}</td>
+                        <td>{{ staff.email }}</td>
+                        <td><span class="badge" ng-class="staff.status === 'Online' ? 'badge-completed' : 'badge-waiting'">{{ staff.status }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

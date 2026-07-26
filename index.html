@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="SmartQueueApp" ng-controller="MainController as main">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQueue | Next-Gen Queue Management System</title>
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body ng-class="{'light-theme': !main.isDarkTheme, 'dark-theme': main.isDarkTheme}">
+
+    <!-- Global Navigation Header -->
+    <header class="glass-header">
+        <div class="logo-container" ng-click="main.navigateTo('/')" role="button" tabindex="0">
+            <i class="fa-solid fa-layer-group logo-icon"></i>
+            <span class="logo-text">Smart<span class="highlight">Queue</span></span>
+        </div>
+        
+        <nav class="nav-links" role="navigation" aria-label="Main Navigation">
+            <a href="#/" ng-class="{'active': main.currentPath === '/'}">Home</a>
+            <a href="#/login" ng-if="!main.isLoggedIn()">Login / Register</a>
+            <a href="#/user" ng-if="main.isLoggedIn() && main.currentUser.role === 'user'" ng-class="{'active': main.currentPath === '/user'}">Dashboard</a>
+            <a href="#/admin" ng-if="main.isLoggedIn() && main.currentUser.role === 'admin'" ng-class="{'active': main.currentPath === '/admin'}">Admin Panel</a>
+        </nav>
+
+        <div class="header-actions">
+            <!-- Theme Toggle Button -->
+            <button class="icon-btn theme-toggle" ng-click="main.toggleTheme()" title="Toggle Theme (Alt+T)" aria-label="Toggle Theme">
+                <i class="fa-solid" ng-class="main.isDarkTheme ? 'fa-sun' : 'fa-moon'"></i>
+            </button>
+            
+            <!-- User Profile & Logout -->
+            <div class="user-pill" ng-if="main.isLoggedIn()">
+                <span class="user-name"><i class="fa-solid fa-user-circle"></i> {{ main.currentUser.name }}</span>
+                <button class="btn btn-outline-danger btn-sm" ng-click="main.logout()" title="Logout (Alt+L)">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Viewport for AngularJS Routing -->
+    <main class="view-container" ng-view role="main"></main>
+
+    <!-- Global Toast Notifications -->
+    <div class="toast-container" aria-live="polite">
+        <div class="toast" ng-repeat="toast in main.toasts" ng-class="toast.type">
+            <i class="fa-solid" ng-class="main.getToastIcon(toast.type)"></i>
+            <span class="toast-message">{{ toast.message }}</span>
+            <button class="toast-close" ng-click="main.closeToast($index)">&times;</button>
+        </div>
+    </div>
+
+    <!-- Global Footer -->
+    <footer class="glass-footer">
+        <p>&copy; 2026 SmartQueue System. Enterprise Edition | Designed for Speed & Accessibility</p>
+        <div class="shortcuts-hint">
+            <span><kbd>Alt</kbd> + <kbd>T</kbd> Toggle Theme</span>
+            <span><kbd>Alt</kbd> + <kbd>L</kbd> Logout</span>
+            <span><kbd>Alt</kbd> + <kbd>D</kbd> Dashboard</span>
+        </div>
+    </footer>
+
+    <!-- Libraries via CDN (QRCode library removed!) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-route.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Application Scripts (qrCode.directive.js removed!) -->
+    <script src="js/app.js"></script>
+    <script src="js/routes/app.routes.js"></script>
+    <script src="js/services/StorageService.js"></script>
+    <script src="js/services/AuthService.js"></script>
+    <script src="js/services/QueueService.js"></script>
+    <script src="js/services/NotificationService.js"></script>
+    <script src="js/directives/chart.directive.js"></script>
+    <script src="js/directives/ripple.directive.js"></script>
+    <script src="js/controllers/MainController.js"></script>
+    <script src="js/controllers/AuthController.js"></script>
+    <script src="js/controllers/UserController.js"></script>
+    <script src="js/controllers/AdminController.js"></script>
+</body>
+</html>

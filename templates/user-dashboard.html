@@ -1,0 +1,60 @@
+<div class="dashboard-grid">
+    <!-- Active Token Live Tracker (QR Code completely removed!) -->
+    <div class="col-12 glass-card token-display-card print-section" ng-if="user.activeToken">
+        <h2>Your Active Queue Token</h2>
+        <div class="token-number">{{ user.activeToken.id }}</div>
+        <span class="badge" ng-class="user.activeToken.status === 'waiting' ? 'badge-waiting' : 'badge-serving'">
+            Status: {{ user.activeToken.status }}
+        </span>
+
+        <div class="token-meta" style="margin-top: 2rem;">
+            <div>
+                <span class="form-label">Department</span>
+                <p style="font-weight: 600;">{{ user.activeToken.deptName }}</p>
+            </div>
+            <div>
+                <span class="form-label">Position in Line</span>
+                <p style="font-weight: 600; font-size: 1.5rem; color: var(--brand-primary);">#{{ user.activeToken.position }}</p>
+            </div>
+            <div>
+                <span class="form-label">Estimated Wait</span>
+                <p style="font-weight: 600;">~{{ user.activeToken.estWait }} Mins</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
+            <button class="btn btn-primary" ng-click="user.printToken()"><i class="fa-solid fa-print"></i> Print Token</button>
+            <button class="btn btn-outline-danger" ng-click="user.cancelToken()"><i class="fa-solid fa-ban"></i> Cancel Token</button>
+        </div>
+    </div>
+
+    <!-- Department Selector Grid -->
+    <div class="col-12 glass-card" ng-if="!user.activeToken">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3>Select a Department to Join Queue</h3>
+            <input type="text" class="form-control" style="max-width: 250px;" ng-model="user.searchQuery" placeholder="Search departments...">
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="col-6 glass-card" ng-repeat="dept in user.departments | filter:user.searchQuery" 
+                 style="cursor: pointer; transition: var(--transition);"
+                 ng-style="{'border-color': user.selectedDept.id === dept.id ? 'var(--brand-primary)' : ''}"
+                 ng-click="user.selectDepartment(dept)">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="font-size: 1.2rem;">{{ dept.name }}</h4>
+                    <span class="badge badge-serving">Prefix: {{ dept.prefix }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                    <span><i class="fa-solid fa-users"></i> Waiting: <strong>{{ dept.activeCount }}</strong></span>
+                    <span><i class="fa-solid fa-clock"></i> Avg Wait: <strong>{{ dept.avgWait }} min</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: right;" ng-if="user.selectedDept">
+            <button class="btn btn-primary" ng-click="user.joinQueue()">
+                Generate Token for {{ user.selectedDept.name }} <i class="fa-solid fa-ticket"></i>
+            </button>
+        </div>
+    </div>
+</div>

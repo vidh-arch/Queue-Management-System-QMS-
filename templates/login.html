@@ -1,0 +1,71 @@
+<div class="dashboard-grid" style="justify-content: center;">
+    <div class="col-6 glass-card" style="margin: 0 auto; max-width: 480px;">
+        
+        <!-- Portal Type Selector -->
+        <div class="portal-switcher">
+            <button class="portal-btn" ng-class="{'active': auth.portalMode === 'user'}" ng-click="auth.setPortal('user')">
+                <i class="fa-solid fa-user"></i> Customer Portal
+            </button>
+            <button class="portal-btn" ng-class="{'admin-active': auth.portalMode === 'admin'}" ng-click="auth.setPortal('admin')">
+                <i class="fa-solid fa-shield-halved"></i> Admin Console
+            </button>
+        </div>
+
+        <!-- Toggle Login/Register ONLY in Customer Mode -->
+        <div ng-if="auth.portalMode === 'user'" style="display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+            <button class="btn" style="flex: 1; background: none; border: none; color: var(--text-primary);" ng-class="{'highlight': auth.isLoginMode}" ng-click="auth.isLoginMode = true">Login</button>
+            <button class="btn" style="flex: 1; background: none; border: none; color: var(--text-primary);" ng-class="{'highlight': !auth.isLoginMode}" ng-click="auth.isLoginMode = false">Register</button>
+        </div>
+
+        <!-- Admin Fixed Header -->
+        <div ng-if="auth.portalMode === 'admin'" style="text-align: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+            <h3 style="color: var(--brand-primary); font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-lock"></i> Restricted Area</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Enter authorized personnel credentials to access terminal.</p>
+        </div>
+
+        <!-- Login Form (Used for both, but Admin defaults to admin@gmail.com) -->
+        <form ng-if="auth.isLoginMode" ng-submit="auth.submitLogin()">
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control" ng-model="auth.loginData.email" placeholder="name@example.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" ng-model="auth.loginData.password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" ng-style="auth.portalMode === 'admin' ? {'background': '#f59e0b', 'border-color': '#f59e0b', 'color': '#000', 'font-weight': '700'} : {}">
+                {{ auth.portalMode === 'admin' ? 'Authorize Terminal Access' : 'Sign In' }} <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            
+            <!-- Helper Hint -->
+            <p ng-if="auth.portalMode === 'admin'" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1.2rem; text-align: center; background: rgba(0,0,0,0.2); padding: 0.6rem; border-radius: 6px;">
+                Credentials: <kbd>admin@gmail.com</kbd> / <kbd>123admin</kbd>
+            </p>
+        </form>
+
+        <!-- Registration Form (ONLY visible in Customer Mode) -->
+        <form ng-if="!auth.isLoginMode && auth.portalMode === 'user'" ng-submit="auth.submitRegister()">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" ng-model="auth.regData.name" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control" ng-model="auth.regData.email" placeholder="john@example.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" ng-model="auth.regData.phone" placeholder="+1 (555) 000-0000" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" ng-model="auth.regData.password" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" ng-model="auth.regData.confirmPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+        </form>
+    </div>
+</div>
